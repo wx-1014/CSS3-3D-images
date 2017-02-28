@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<style>
+		*{
+			margin:0px;padding:0px;
+		}
+		body{
+			background: #000;
+			}
+		#wrap{
+			perspective: 800px;
+		}
+		.box{
+			transform-style: preserve-3d;
+			position:relative;
+			width:120px;
+			height:180px;
+			margin:-180px auto 0;
+			/*border:1px solid red;*/
+			transform: rotateX(-10deg) rotateY(0deg);
+		
+		}
+		.box img{
+			top:0;
+			left:0;
+			position:absolute;
+			width:100%;
+			height:100%;			
+			border-radius: 2px;
+			box-shadow: 0 0 8px #f9f;
+		}	
+		.box p{
+			width:1000px;
+			height:1000px;
+			background: -webkit-radial-gradient(center center,500px 500px,rgba(244,23,234,.3),rgba(0,0,0,0));
+			border-radius: 50%;
+			margin-left:-450px;
+			transform:rotateX(90deg) translateZ(300px) ;
+			
+			
+		}
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div class="box">
+				<img src="img/1.jpg" alt="" />
+				<img src="img/2.jpg" alt="" />
+				<img src="img/3.jpg" alt="" />
+				<img src="img/4.jpg" alt="" />
+				<img src="img/5.jpg" alt="" />
+				<img src="img/6.jpg" alt="" />			
+				<img src="img/7.jpg" alt="" />
+				<img src="img/8.jpg" alt="" />
+				<img src="img/9.jpg" alt="" />
+				<img src="img/10.jpg" alt="" />
+				<img src="img/11.jpg" alt="" />
+				<p></p>
+			</div>
+			
+		</div>
+	</body>
+	<script type="text/javascript">
+	    window.onload = function(){
+		var oimg=document.getElementsByTagName('img');
+		var obox=document.getElementsByClassName('box')[0];
+		var oimglength=oimg.length;
+		var odeg=360/oimglength;
+		var lastX,lastY,lastZ,nowX,nowY,nowZ,minuX,minuY,roX=0,roY=-10,timerOfAuto,timerOfStart,count=0,ctrl=false;
+		for(var i=0;i<oimglength;i++){
+			oimg[i].style.transform='rotateY('+odeg*i+'deg) translateZ(350px)';
+			oimg[i].style.transition='transform 1s '+(oimglength-1-i)*0.1+'s';
+			count++;
+			if(count==oimglength){
+				delay=((oimglength-1)*0.1+1)*1000;
+				setTimeout(function(){
+					autoMove();
+				},delay);
+			};
+		}
+		window.onresize=function(){
+			setPosition();
+		}
+		setPosition();
+		function setPosition(){
+			 var wh=document.documentElement.clientHeight;
+			 var ww=document.documentElement.clientWidth;
+			 lastZ=wh/2-180+'px';
+			 lastX=ww/2-50+'px';
+			 obox.style.marginTop=lastZ;
+			 obox.style.marginLeft=lastX;	
+		};
+		
+		//自动旋转
+		function autoMove(){
+			roX -=0.08;
+			move();
+			timerOfAuto=setTimeout(autoMove,20);
+		}
+		//旋转函数
+		function move(){
+			obox.style.transform='rotateX('+roY+'deg)rotateY('+roX+'deg)';
+		}
+		//判断是移动还是旋转
+		document.onkeydown=function(e){
+			if(e.ctrlKey)ctrl=true;
+		}
+		document.onkeyup=function(){
+			ctrl=false;
+		}
+		//拖动旋转或移动图片组
+		document.onmousedown=function(e){
+			clearInterval(timerOfStart);
+			clearTimeout(timerOfAuto);
+			e=e||window.event;
+			lastX=e.clientX;
+			lastY=e.clientY;
+			document.onmousemove=function(e){
+				e=e||window.event;
+				nowX=e.clientX;
+				nowY=e.clientY;
+				minuX=nowX-lastX;
+				minuY=nowY-lastY;
+				if(ctrl){
+					var top = parseInt(obox.style.marginTop);
+					var left = parseInt(obox.style.marginLeft);
+					top += minuY;
+					left += minuX;
+					obox.style.marginTop = top + 'px';
+					obox.style.marginLeft = left + 'px';
+				}else{
+					roX+=minuX*0.2;
+					roY-=minuY*0.2;
+				}
+				move();
+				lastX=nowX;
+				lastY=nowY;
+			}
+			document.onmouseup=function(e){
+				e=e||window.event;
+				this.onmousemove=null;
+				if(!ctrl){
+					timerOfStart=setInterval(function(){
+						minuX *= 0.95;
+						minuY *= 0.95;
+						roX+=minuX*0.2;
+						roY-=minuY*0.2;
+						move();
+						if(Math.abs(minuX)<0.1 && Math.abs(minuY)<0.1){
+							clearInterval(timerOfStart);
+							timerOfAuto=setTimeout(autoMove,20);
+						}
+					},20);
+				}
+			}
+			return false;
+		}
+	}
+	</script>
+</html>
